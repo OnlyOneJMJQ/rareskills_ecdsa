@@ -1,6 +1,5 @@
 import random
 import hashlib
-import py_ecc.secp256k1 as secp256k1
 
 class ECDSA:
   def __init__(self, order, generator_point):
