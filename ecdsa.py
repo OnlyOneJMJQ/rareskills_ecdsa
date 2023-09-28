@@ -2,6 +2,7 @@ import random
 from hashlib import sha256
 import py_ecc.secp256k1.secp256k1 as secp256k1
 from py_ecc.typing import (PlainPoint2D)
+from rich import print
 
 class ECDSA:
   def __init__(self, order: int, generator_point: PlainPoint2D) -> (int, PlainPoint2D):
@@ -47,31 +48,41 @@ class ECDSA:
 
     return random_point_x == signature[0]
 
+def hash_message(message: str | int):
+  if isinstance(message, str):
+    return sha256(message.encode('utf-8')).hexdigest()
+  elif isinstance(message, int):
+    return sha256(message.to_bytes(32, 'big')).hexdigest()
+  else:
+    raise TypeError("Message must be of type str or int")
+
 # Test
-message = 1337
-message_hash: int = sha256(message.to_bytes(2, 'big')).hexdigest()
+message: str = "Hello World!"
+message_hash: bytes = hash_message(message)
 
 print("\nECDSA TEST\n==========\n")
 
-print("Initializing...\n")
-ecdsa = ECDSA(115792089237316195423570985008687907852837564279074904382605163141518161494337, (55066263022277343669578718895168534326250603453777594175500187360389116729240,32670510020758816978083085130507043184471273380659243275938904335757337482424))
+print("[yellow]Initializing...[/yellow]\n")
+ecdsa: ECDSA = ECDSA(115792089237316195423570985008687907852837564279074904382605163141518161494337, (55066263022277343669578718895168534326250603453777594175500187360389116729240,32670510020758816978083085130507043184471273380659243275938904335757337482424))
 
-print("Generating keys...\n")
+print("[yellow]Generating keys...[/yellow]\n")
 keys = ecdsa.keygen()
 print("Keys\n----")
 print("Public Key: (" + str(keys[1][0]) + ",")
 print("             " + str(keys[1][1]) + ")")
 print("Private Key: " + str(keys[0]) + "\n")
 
-print("Signing message...\n")
+print("[yellow]Signing message...[/yellow]\n")
 signature = ecdsa.sign(message_hash, keys[0])
 print("Signature\n---------")
 print("Random Point X (r): " + str(signature[0]))
 print("Signature Proof (s): " + str(signature[1]) + "\n")
 
-# print("\nPY_ECC signature:")
-# print(secp256k1.ecdsa_raw_sign(message_hash, keys[0].to_bytes(32, 'big')))
+# print("PY_ECC Signature\n----------------")
+# pyecc_sig = secp256k1.ecdsa_raw_sign(message_hash, keys[0].to_bytes(32, 'big'))
+# print("Random Point X (r): " + str(pyecc_sig[1]))
+# print("Signature Proof (s): " + str(pyecc_sig[2]) + "\n")
 
-print("Verifying signature...\n")
+print("[yellow]Verifying signature...[/yellow]\n")
 verification = ecdsa.verify(message_hash, signature, keys[1])
 print("Verified: " + str(verification))
