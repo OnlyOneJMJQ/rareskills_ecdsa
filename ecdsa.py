@@ -57,7 +57,7 @@ def hash_message(message: str | int):
     raise TypeError("Message must be of type str or int")
 
 # Test
-message: str = "Hello World!"
+message: str | int = "Hello World!"
 message_hash: bytes = hash_message(message)
 
 print("\nECDSA TEST\n==========\n")
